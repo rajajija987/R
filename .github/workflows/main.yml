@@ -1,63 +1,87 @@
-name: Bbc Workflow Automation
+name: Comprehensive Python Workflow
 
 on:
   push:
-    branches:
+    branches: 
       - main
       - develop
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '0 */4 * * *'  # More reasonable scheduling (every 4 hours)
 
 jobs:
-  Bbc_workflow:
+  python-workflow:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10]
-    
+        python-version: [3.9, 3.10, 3.11]
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4  # Latest version
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Setup System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+
+      - name: Add Deadsnakes PPA
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt-get update
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get install -y python${{ matrix.python-version }}-dev
+          sudo apt-get install -y python3-pip
+
+      - name: Verify Python Installation
+        run: |
+          python${{ matrix.python-version }} --version
+          pip3 --version
 
       - name: Clone Additional Repository
         run: |
           git clone https://github.com/rajajija987/R.git
           cd R
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest coverage
+          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install -r requirements.txt
+          python${{ matrix.python-version }} -m pip install pytest coverage flake8
 
       - name: Run Linting
         run: |
-          pip install flake8
           flake8 .
 
       - name: Execute Python Script
         run: |
           chmod +x m.py
-          python3 m.py
+          python${{ matrix.python-version }} m.py
 
-      - name: Run Tests
+      - name: Run Unit Tests
         run: |
           pytest tests/
 
-      - name: Upload Coverage
-        uses: codecov/codecov-action@v3
-        
+      - name: Generate Coverage Report
+        run: |
+          coverage run -m pytest
+          coverage xml
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
