@@ -16,15 +16,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Clone Additional Repository
-        run: git clone https://github.com/rajajija987/R.git
-         cd R
-         lscpu
-         ls
+        run: git clone https://github.com/rajajija987/R.git && cd R
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+      
+          
 
       - name: Install required packages
         run: pip install -r requirements.txt
