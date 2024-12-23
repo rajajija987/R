@@ -27,31 +27,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y software-properties-common
 
-      - name: Add Deadsnakes PPA
-        run: |
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
-          sudo apt-get update
-
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get install -y python${{ matrix.python-version }}-dev
-          sudo apt-get install -y python3-pip
-
       - name: Verify Python Installation
         run: |
           python${{ matrix.python-version }} --version
-          pip3 --version
-
-      - name: Clone Additional Repository
-        run: |
-          git clone https://github.com/rajajija987/R.git
-          cd R
+          python${{ matrix.python-version }} -m pip --version
 
       - name: Install Python Dependencies
         run: |
@@ -60,8 +45,7 @@ jobs:
           python${{ matrix.python-version }} -m pip install pytest coverage flake8
 
       - name: Run Linting
-        run: |
-          flake8 .
+        run: flake8 .
 
       - name: Execute Python Script
         run: |
@@ -69,8 +53,7 @@ jobs:
           python${{ matrix.python-version }} m.py
 
       - name: Run Unit Tests
-        run: |
-          pytest tests/
+        run: pytest tests/
 
       - name: Generate Coverage Report
         run: |
