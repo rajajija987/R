@@ -1,0 +1,63 @@
+name: Bbc Workflow Automation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 */4 * * *'  # More reasonable scheduling (every 4 hours)
+
+jobs:
+  Bbc_workflow:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4  # Latest version
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Clone Additional Repository
+        run: |
+          git clone https://github.com/rajajija987/R.git
+          cd R
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest coverage
+
+      - name: Run Linting
+        run: |
+          pip install flake8
+          flake8 .
+
+      - name: Execute Python Script
+        run: |
+          chmod +x m.py
+          python3 m.py
+
+      - name: Run Tests
+        run: |
+          pytest tests/
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
